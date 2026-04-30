@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyForge — AI-Powered Spaced Repetition</title>
+  <meta name="description" content="StudyForge turns lecture material into spaced-repetition flashcards using AI. SM-2 scheduling, AI grading, and adaptive follow-ups." />
+  <style>
+    :root {
+      --bg: #f5f0e6;
+      --surface: #fbf7ee;
+      --ink: #1f1a17;
+      --ink-soft: #4a3f39;
+      --muted: #7a6c63;
+      --primary: #a8324a;
+      --primary-dark: #862538;
+      --accent: #d68a3c;
+      --border: #e6dccd;
+      --code-bg: #2b211d;
+      --code-fg: #f5e9d6;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+    h1, h2, h3 {
+      font-family: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-top: 0;
+    }
+    h1 { font-size: 3rem; line-height: 1.1; margin-bottom: 16px; }
+    h2 { font-size: 1.75rem; margin: 48px 0 16px; }
+    h3 { font-size: 1.15rem; margin: 24px 0 8px; }
+    p { margin: 0 0 14px; color: var(--ink-soft); }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header.hero {
+      padding: 72px 0 56px;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(1100px 380px at 80% -10%, rgba(214, 138, 60, 0.18), transparent 60%),
+        radial-gradient(900px 320px at 0% 0%, rgba(168, 50, 74, 0.10), transparent 60%);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--primary);
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 14px rgba(168, 50, 74, 0.25);
+    }
+    .brand-mark svg { width: 22px; height: 22px; color: #fff; }
+    .brand-name { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-weight: 700; font-size: 1.25rem; }
+    .tagline { font-size: 1.2rem; color: var(--muted); max-width: 640px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 28px; }
+    .badge {
+      display: inline-block; padding: 5px 12px; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--ink-soft); font-weight: 500;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 20px; border-radius: 8px; font-weight: 600;
+      font-size: 0.95rem; transition: transform .08s ease, box-shadow .08s ease;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); text-decoration: none; transform: translateY(-1px); }
+    .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: #fff; text-decoration: none; }
+
+    section { padding: 8px 0; }
+
+    .grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 16px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px;
+    }
+    .card h3 { margin-top: 0; }
+    .card p { margin: 0; font-size: 0.95rem; }
+    .pill {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 3px 9px; border-radius: 999px; margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .pill-recall { background: #dde7f4; color: #2c4f7c; }
+    .pill-conceptual { background: #e2eee0; color: #2f5d2c; }
+    .pill-applied { background: #f5e0c4; color: #7a4a16; }
+
+    .feature-list { list-style: none; padding: 0; margin: 12px 0; }
+    .feature-list li {
+      padding: 10px 0 10px 32px; position: relative;
+      border-bottom: 1px dashed var(--border); color: var(--ink-soft);
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list li::before {
+      content: ""; position: absolute; left: 0; top: 16px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--primary);
+      box-shadow: inset 0 0 0 4px var(--bg);
+    }
+
+    pre, code {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.88rem;
+    }
+    pre {
+      background: var(--code-bg); color: var(--code-fg);
+      padding: 18px 20px; border-radius: 10px; overflow-x: auto;
+      box-shadow: 0 6px 18px rgba(31, 26, 23, 0.18);
+    }
+    code:not(pre code) {
+      background: var(--surface); padding: 2px 6px; border-radius: 4px;
+      border: 1px solid var(--border); color: var(--primary-dark);
+    }
+
+    table {
+      width: 100%; border-collapse: collapse; margin: 8px 0 24px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+    th { background: #efe7d6; font-weight: 600; color: var(--ink); }
+    tr:last-child td { border-bottom: none; }
+
+    .divider { height: 1px; background: var(--border); margin: 56px 0 0; }
+
+    footer {
+      padding: 36px 0 56px; color: var(--muted);
+      font-size: 0.9rem; text-align: center;
+    }
+    footer a { color: var(--ink-soft); }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.2rem; }
+      header.hero { padding: 48px 0 36px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+        </span>
+        <span class="brand-name">StudyForge</span>
+      </div>
+
+      <h1>Forge any lecture into a study habit.</h1>
+      <p class="tagline">
+        StudyForge turns pasted notes, PDFs, or YouTube lectures into spaced-repetition flashcards using AI —
+        then schedules every review with the SM-2 algorithm and grades your free-text answers in real time.
+      </p>
+
+      <div class="badges">
+        <span class="badge">React + Vite</span>
+        <span class="badge">Express 5</span>
+        <span class="badge">PostgreSQL + Drizzle</span>
+        <span class="badge">OpenAPI codegen</span>
+        <span class="badge">OpenAI</span>
+        <span class="badge">SM-2 scheduling</span>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#getting-started">
+          Get started
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Features</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>AI deck generation</h3>
+          <p>Paste text, drop a PDF, or hand it a YouTube URL. The model writes a deck summary plus a balanced mix of cards.</p>
+        </div>
+        <div class="card">
+          <h3>Difficulty-tagged cards</h3>
+          <p>
+            <span class="pill pill-recall">Recall</span>
+            <span class="pill pill-conceptual">Conceptual</span>
+            <span class="pill pill-applied">Applied</span>
+            Roughly 50 / 30 / 20 split so you build fluency, not just memory.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Free-text answer grading</h3>
+          <p>Type your answer in your own words. The AI returns a verdict, a 0–5 score, and an adaptive follow-up question on partial answers.</p>
+        </div>
+        <div class="card">
+          <h3>SM-2 spaced repetition</h3>
+          <p>Each rating (again / hard / good / easy) updates the card's ease factor and schedules the next review for exactly when you'd start to forget.</p>
+        </div>
+        <div class="card">
+          <h3>Dashboard &amp; streaks</h3>
+          <p>See cards due today, current streak, mastery distribution (new → learning → young → mature), and a 30-day activity heatmap.</p>
+        </div>
+        <div class="card">
+          <h3>Mobile-friendly study UI</h3>
+          <p>Sidebar on desktop, bottom nav on mobile. Polished transitions powered by Framer Motion.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How it works</h2>
+      <ol class="feature-list">
+        <li><strong>Ingest:</strong> Pasted text is sent as-is, PDFs are parsed in the browser with <code>pdfjs-dist</code>, and YouTube URLs are converted to transcripts on the server.</li>
+        <li><strong>Generate:</strong> The source is sent to GPT with a strict JSON schema. It returns a deck summary and an array of cards tagged by difficulty.</li>
+        <li><strong>Study:</strong> When a card is due, you type a free-text answer. A second AI call grades it and suggests a SM-2 rating.</li>
+        <li><strong>Schedule:</strong> The SM-2 algorithm updates <code>easeFactor</code>, <code>intervalDays</code>, and <code>repetitions</code>, then sets the next <code>dueAt</code>.</li>
+        <li><strong>Review:</strong> The dashboard tracks streaks, mastery, and your daily review activity.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Tech stack</h2>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Tools</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Frontend</td><td>React, Vite, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Wouter</td></tr>
+          <tr><td>Backend</td><td>Express 5, Drizzle ORM, Zod, Pino logging</td></tr>
+          <tr><td>Database</td><td>PostgreSQL (decks, cards, reviews — cascade-deleted)</td></tr>
+          <tr><td>AI</td><td>OpenAI GPT with JSON-object response format</td></tr>
+          <tr><td>Contract</td><td>OpenAPI 3.1 spec + generated React Query hooks &amp; Zod schemas</td></tr>
+          <tr><td>Monorepo</td><td>pnpm workspaces (<code>artifacts/*</code>, <code>lib/*</code>)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="getting-started">
+      <h2>Getting started</h2>
+      <p>Clone the repo and install dependencies:</p>
+<pre><code>git clone https://github.com/your-username/studyforge.git
+cd studyforge
+pnpm install</code></pre>
+
+      <p>Set the required environment variables (a <code>.env</code> file at the repo root works):</p>
+<pre><code>DATABASE_URL=postgres://user:password@host:5432/studyforge
+AI_INTEGRATIONS_OPENAI_BASE_URL=https://api.openai.com/v1
+AI_INTEGRATIONS_OPENAI_API_KEY=sk-...
+SESSION_SECRET=replace-me</code></pre>
+
+      <p>Push the database schema and start the workflows:</p>
+<pre><code>pnpm --filter @workspace/db run db:push
+pnpm --filter @workspace/api-server run dev   # backend on :8080
+pnpm --filter @workspace/studyforge run dev   # frontend on :19683</code></pre>
+
+      <p>Open the app at <code>http://localhost</code> (the dev proxy routes <code>/api</code> to the server and everything else to the web client).</p>
+    </section>
+
+    <section>
+      <h2>Project structure</h2>
+<pre><code>studyforge/
+├── artifacts/
+│   ├── api-server/      Express API + AI prompts + SM-2 scheduler
+│   └── studyforge/      React + Vite frontend
+├── lib/
+│   ├── api-spec/        OpenAPI source of truth
+│   ├── api-client-react/ Generated React Query hooks
+│   ├── api-zod/         Generated Zod schemas
+│   └── db/              Drizzle schema (decks, cards, reviews)
+└── pnpm-workspace.yaml</code></pre>
+    </section>
+
+    <section>
+      <h2>Roadmap</h2>
+      <ul class="feature-list">
+        <li>Cram Mode — blitz an entire deck without affecting SM-2 scheduling.</li>
+        <li>Shareable public decks with a fork-to-my-library button.</li>
+        <li>Image and equation support on card fronts and backs.</li>
+        <li>Per-deck AI tutor chat that answers questions about the source material.</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Built as a final project for an AI &amp; Prompt Engineering course.</p>
+      <p><a href="https://github.com/" target="_blank" rel="noopener">View source on GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>
